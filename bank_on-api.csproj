@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>bank_on_api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+      <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+      <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+        <PackageReference Include="HotChocolate.Types.NodaTime" Version="12.7.0" />
+        <PackageReference Include="Keycloak.Net" Version="1.0.18" />
+        <PackageReference Include="LinqToCsv" Version="1.5.0" />
+        <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.17.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.17.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.17.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.17.0" />
+        <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+        <PackageReference Include="NodaTime" Version="3.0.10" />
+        <PackageReference Include="QRCoder" Version="1.4.2" />
+        <PackageReference Include="SendGrid" Version="9.28.0" />
+        <PackageReference Include="Scriban" Version="5.4.3" />
+        <PackageReference Include="SimplerSoftware.EntityFrameworkCore.SqlServer.NodaTime" Version="6.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="HotChocolate.AspNetCore" Version="12.7.0" />
+        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="12.7.0" />
+        <PackageReference Include="HotChocolate.Data" Version="12.7.0" />
+        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.7.0" />
+        <PackageReference Include="Humanizer" Version="2.14.1" />
+        <PackageReference Include="iTextSharp.LGPLv2.Core" Version="1.8.0" />
+        <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="5.2.1" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.17.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+        <PackageReference Include="EFCore.BulkExtensions" Version="6.4.2" />
+        <PackageReference Include="Microsoft.Azure.SignalR" Version="1.16.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+        <PackageReference Include="Serilog.Sinks.AzureApp" Version="3.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+        <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
+        <PackageReference Include="Snickler.EFCore" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>
