@@ -125,7 +125,6 @@ builder.Services.AddGraphQLServer()
     .AddSorting()
     .AddFiltering()
     .AddProjections()
-    .AddAuthorization()
     .AddInMemorySubscriptions()
     .AddType(new UuidType('D'))
     .AddType<InstantType>()
@@ -159,7 +158,6 @@ app.UseStaticFiles();
 app.UseResponseCompression();
 app.UseRouting();
 app.UseCors("LoosePolicy");
-// app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
