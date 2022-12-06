@@ -11,37 +11,18 @@ namespace bank_on_api.GraphQL.Queries
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_request> GetFinanceRequestsPaginated([ScopedService] BankOn context)
+        public IQueryable<FinanceRequest> GetFinanceRequestsPaginated([ScopedService] BankOn context)
         {
-            return context.finance_request;
+            return context.FinanceRequest;
         }
 
         [UseDbContext(typeof(BankOn))]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_request> GetFinanceRequests([ScopedService] BankOn context)
+        public IQueryable<FinanceRequest> GetFinanceRequests([ScopedService] BankOn context)
         {
-            return context.finance_request;
-        }
-
-        [UseDbContext(typeof(BankOn))]
-        [UseOffsetPaging]
-        [UseProjection]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<finance_request_status> GetFinanceRequestStatusesPagnated([ScopedService] BankOn context)
-        {
-            return context.finance_request_status;
-        }
-
-        [UseDbContext(typeof(BankOn))]
-        [UseProjection]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<finance_request_status> GetFinanceRequestStatuses([ScopedService] BankOn context)
-        {
-            return context.finance_request_status;
+            return context.FinanceRequest;
         }
 
         [UseDbContext(typeof(BankOn))]
@@ -49,18 +30,18 @@ namespace bank_on_api.GraphQL.Queries
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_request_log> GetFinanceRequestLogsPaginated([ScopedService] BankOn context)
+        public IQueryable<FinanceRequestStatus> GetFinanceRequestStatusesPagnated([ScopedService] BankOn context)
         {
-            return context.finance_request_log;
+            return context.FinanceRequestStatus;
         }
 
         [UseDbContext(typeof(BankOn))]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_request_log> GetFinanceRequestLogs([ScopedService] BankOn context)
+        public IQueryable<FinanceRequestStatus> GetFinanceRequestStatuses([ScopedService] BankOn context)
         {
-            return context.finance_request_log;
+            return context.FinanceRequestStatus;
         }
 
         [UseDbContext(typeof(BankOn))]
@@ -68,18 +49,37 @@ namespace bank_on_api.GraphQL.Queries
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_product> GetFinanceProductsPaginated([ScopedService] BankOn context)
+        public IQueryable<FinanceRequestLog> GetFinanceRequestLogsPaginated([ScopedService] BankOn context)
         {
-            return context.finance_product;
+            return context.FinanceRequestLog;
         }
 
         [UseDbContext(typeof(BankOn))]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<finance_product> GetFinanceProducts([ScopedService] BankOn context)
+        public IQueryable<FinanceRequestLog> GetFinanceRequestLogs([ScopedService] BankOn context)
         {
-            return context.finance_product;
+            return context.FinanceRequestLog;
+        }
+
+        [UseDbContext(typeof(BankOn))]
+        [UseOffsetPaging]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<FinanceProduct> GetFinanceProductsPaginated([ScopedService] BankOn context)
+        {
+            return context.FinanceProduct;
+        }
+
+        [UseDbContext(typeof(BankOn))]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<FinanceProduct> GetFinanceProducts([ScopedService] BankOn context)
+        {
+            return context.FinanceProduct;
         }
 
 

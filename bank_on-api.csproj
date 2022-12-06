@@ -15,6 +15,7 @@
         <PackageReference Include="Keycloak.Net" Version="1.0.18" />
         <PackageReference Include="LinqToCsv" Version="1.5.0" />
         <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />
+        <PackageReference Include="Microsoft.AspNet.WebApi.Cors" Version="5.2.9" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.17.0" />
         <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.17.0" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.17.0" />
@@ -56,6 +57,7 @@
         <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
         <PackageReference Include="Snickler.EFCore" Version="3.0.0" />
+        <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
 </Project>

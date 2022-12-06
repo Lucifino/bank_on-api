@@ -6,6 +6,7 @@ using bank_on_api.Helpers;
 using bank_on_api.Models.Entities.BankOn;
 using HotChocolate.Data.Filters;
 using HotChocolate.Execution.Options;
+using HotChocolate.Types.Descriptors;
 using HotChocolate.Types.NodaTime;
 using HotChocolate.Types.Pagination;
 using MicroElements.Swashbuckle.NodaTime;
@@ -15,8 +16,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NodaTime;
 using static bank_on_api.Helpers.FileContentResultTypeAttribute;
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +29,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextPool<BankOn>(options =>
 {
 
-    options.UseSqlServer("Server=.\\SQLEXPRESS;Initial Catalog=MyDB;Integrated Security=True", x => { x.UseNodaTime(); });
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BANKONDBCLOUD"), x => { x.UseNodaTime(); });
     if (builder.Environment.IsProduction()) return;
     options.EnableSensitiveDataLogging();
     options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
@@ -33,21 +37,60 @@ builder.Services.AddDbContextPool<BankOn>(options =>
 
 builder.Services.AddPooledDbContextFactory<BankOn>(options =>
 {
-    options.UseSqlServer("Server=.\\SQLEXPRESS;Initial Catalog=MyDB;Integrated Security=True", x => { x.UseNodaTime(); });
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BANKONDBCLOUD"), x => { x.UseNodaTime(); });
     if (builder.Environment.IsProduction()) return;
     options.EnableSensitiveDataLogging();
     options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
 });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "LoosePolicy",
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:5177")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                          policy.WithOrigins("http://localhost:7177")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                          policy.WithOrigins("http://localhost:4200")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                          policy.WithOrigins("https://localhost:5177")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                          policy.WithOrigins("https://localhost:7177")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                          policy.WithOrigins("https://localhost:4200")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin();
+                      });
+});
+
+
 builder.Services.AddControllers(options =>
 {
     options.SuppressAsyncSuffixInActionNames = false;
+
 }).AddNewtonsoftJson(options =>
 {
-    options.SerializerSettings.ContractResolver = null;
+    options.SerializerSettings.DateFormatString = "YYYY-MM-DD";
+    options.SerializerSettings.ContractResolver = new DefaultContractResolver(); ;
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-});
+
+}).AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = null);
+
+
 
 builder.Services.AddSingleton<IClockService, ClockService>();
 builder.Services.AddScoped<BankOnAdapter>();
@@ -89,6 +132,7 @@ builder.Services.AddGraphQLServer()
     .AddType<LocalDateType>()
     .AddType<LocalTimeType>()
     .AddType<UploadType>()
+    .AddConvention<INamingConventions>(new GraphQLNamingConvention())
     .AddConvention<IFilterConvention>(new FilterConventionExtension(configure =>
     {
         configure.BindRuntimeType<Instant, ComparableOperationFilterInputType<Instant>>();
@@ -108,6 +152,15 @@ var app = builder.Build();
 
 app.UseDeveloperExceptionPage();
 
+
+
+
+app.UseStaticFiles();
+app.UseResponseCompression();
+app.UseRouting();
+app.UseCors("LoosePolicy");
+// app.UseAuthorization();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -118,15 +171,13 @@ else
 {
     app.UseHttpsRedirection();
 }
-app.UseStaticFiles();
-app.UseResponseCompression();
-app.UseRouting();
-// app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllerRoute("api", "{controller=Home}/{action=Index}/{id?}");
-    endpoints.MapControllerRoute("api", "api/{controller}/{action}/{id?}");
+    endpoints.MapControllerRoute("api", "{controller=Home}/{action=Index}/{id?}")
+        .RequireCors("LoosePolicy");
+    endpoints.MapControllerRoute("api", "api/{controller}/{action}/{id?}")
+        .RequireCors("LoosePolicy");
     endpoints.MapGraphQL("/graphql");
 });
 
