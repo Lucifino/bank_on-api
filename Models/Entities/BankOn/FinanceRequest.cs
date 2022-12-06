@@ -30,6 +30,6 @@ namespace bank_on_api.Models.Entities.BankOn
 
         public virtual FinanceProduct? FinanceProduct { get; set; }
         public virtual FinanceRequestStatus? FinanceRequestStatus { get; set; }
-        public virtual ICollection<FinanceRequestLog>? FinanceRequestLog { get; set; }
+        public virtual ICollection<FinanceRequestLog> FinanceRequestLog { get; set; }
     }
 }

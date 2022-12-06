@@ -7,6 +7,7 @@ namespace bank_on_api.Models.Entities.BankOn
 {
     public partial class BankOn : DbContext
     {
+
         public BankOn(DbContextOptions<BankOn> options)
             : base(options)
         {
@@ -39,6 +40,10 @@ namespace bank_on_api.Models.Entities.BankOn
             modelBuilder.Entity<FinanceRequest>(entity =>
             {
                 entity.ToTable("FinanceRequest", "bank_on");
+
+                entity.HasIndex(e => e.FinanceProductId, "IX_FinanceRequest_FinanceProductId");
+
+                entity.HasIndex(e => e.FinanceRequestStatusId, "IX_FinanceRequest_FinanceRequestStatusId");
 
                 entity.Property(e => e.FinanceRequestId).HasDefaultValueSql("(newid())");
 
@@ -76,6 +81,8 @@ namespace bank_on_api.Models.Entities.BankOn
             modelBuilder.Entity<FinanceRequestLog>(entity =>
             {
                 entity.ToTable("FinanceRequestLog", "bank_on");
+
+                entity.HasIndex(e => e.FinanceRequestId, "IX_FinanceRequestLog_FinanceRequestId");
 
                 entity.Property(e => e.FinanceRequestLogId).HasDefaultValueSql("(newid())");
 

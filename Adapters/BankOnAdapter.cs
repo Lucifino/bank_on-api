@@ -71,14 +71,18 @@ public class BankOnAdapter
                     }
                 );
 
-                idParam = financeRequest.Entity.FinanceRequestId.ToString();
+                
 
                 await db.SaveChangesAsync();
+
+                var addedRequest = db.FinanceRequest.FirstOrDefault(x => x.ReferenceNo == new_reference_no);
+
+                idParam = addedRequest?.FinanceRequestId.ToString();
                 // await transaction.CommitAsync();
             }
 
 
-            return $"http://localhost:4200/viewer/{idParam}";
+            return $"https://kind-sand-099505e10.2.azurestaticapps.net/admin/calculate/{idParam}";
         }
         catch (Exception e)
         {
