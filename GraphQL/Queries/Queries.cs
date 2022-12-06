@@ -82,6 +82,25 @@ namespace bank_on_api.GraphQL.Queries
             return context.FinanceProduct;
         }
 
+        [UseDbContext(typeof(BankOn))]
+        [UseOffsetPaging]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<BlackListGroup> GetBlackListGroupsPaginated([ScopedService] BankOn context)
+        {
+            return context.BlackListGroup;
+        }
+
+        [UseDbContext(typeof(BankOn))]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<BlackListGroup> GetBlackListGroups([ScopedService] BankOn context)
+        {
+            return context.BlackListGroup;
+        }
+
 
     }
 }

@@ -13,6 +13,7 @@ namespace bank_on_api.Models.Entities.BankOn
         {
         }
 
+        public virtual DbSet<BlackListGroup> BlackListGroup { get; set; } = null!;
         public virtual DbSet<FinanceProduct> FinanceProduct { get; set; } = null!;
         public virtual DbSet<FinanceRequest> FinanceRequest { get; set; } = null!;
         public virtual DbSet<FinanceRequestLog> FinanceRequestLog { get; set; } = null!;
@@ -20,6 +21,17 @@ namespace bank_on_api.Models.Entities.BankOn
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<BlackListGroup>(entity =>
+            {
+                entity.ToTable("BlackListGroup", "bank_on");
+
+                entity.Property(e => e.BlackListGroupId).ValueGeneratedNever();
+
+                entity.Property(e => e.Title).HasMaxLength(100);
+
+                entity.Property(e => e._Deleted).HasDefaultValueSql("((0))");
+            });
+
             modelBuilder.Entity<FinanceProduct>(entity =>
             {
                 entity.ToTable("FinanceProduct", "bank_on");
@@ -29,6 +41,8 @@ namespace bank_on_api.Models.Entities.BankOn
                 entity.Property(e => e.AmountMin).HasColumnType("decimal(18, 6)");
 
                 entity.Property(e => e.Description).HasMaxLength(500);
+
+                entity.Property(e => e.EstablishmentRate).HasColumnType("decimal(18, 6)");
 
                 entity.Property(e => e.InterestRate).HasColumnType("decimal(18, 6)");
 
@@ -65,7 +79,13 @@ namespace bank_on_api.Models.Entities.BankOn
 
                 entity.Property(e => e.TotalRepayment).HasColumnType("decimal(18, 6)");
 
+                entity.Property(e => e._BlackListDomainFlag).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e._BlackListMobileFlag).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e._Deleted).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e._UnderAgeFlag).HasDefaultValueSql("((0))");
 
                 entity.HasOne(d => d.FinanceProduct)
                     .WithMany(p => p.FinanceRequest)

@@ -27,9 +27,12 @@ namespace bank_on_api.Models.Entities.BankOn
         public bool? _Deleted { get; set; }
         public decimal? MonthlyRepayment { get; set; }
         public decimal? TotalRepayment { get; set; }
+        public bool? _UnderAgeFlag { get; set; }
+        public bool? _BlackListMobileFlag { get; set; }
+        public bool? _BlackListDomainFlag { get; set; }
 
         public virtual FinanceProduct? FinanceProduct { get; set; }
         public virtual FinanceRequestStatus? FinanceRequestStatus { get; set; }
-        public virtual ICollection<FinanceRequestLog> FinanceRequestLog { get; set; }
+        public virtual ICollection<FinanceRequestLog>? FinanceRequestLog { get; set; }
     }
 }

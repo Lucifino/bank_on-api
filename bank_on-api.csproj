@@ -16,6 +16,7 @@
         <PackageReference Include="LinqToCsv" Version="1.5.0" />
         <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />
         <PackageReference Include="Microsoft.AspNet.WebApi.Cors" Version="5.2.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.17.0" />
         <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.17.0" />
         <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.17.0" />

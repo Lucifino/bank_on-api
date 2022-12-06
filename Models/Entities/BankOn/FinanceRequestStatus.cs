@@ -16,6 +16,6 @@ namespace bank_on_api.Models.Entities.BankOn
         public int? _case { get; set; }
         public bool? _Deleted { get; set; }
 
-        public virtual ICollection<FinanceRequest> FinanceRequest { get; set; }
+        public virtual ICollection<FinanceRequest>? FinanceRequest { get; set; }
     }
 }

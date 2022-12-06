@@ -111,7 +111,7 @@ namespace bank_on_api.GraphQL.Mutations
 
 
         [UseDbContext(typeof(BankOn))]
-        public async Task<Response> UpdateFinanceRequestAsync(
+        public async Task<Response> UpdateFinanceRequestCustomerAsync(
             FinanceRequest edit,
             [ScopedService] BankOn db,
             [Service] IConfiguration configuration,
@@ -161,13 +161,12 @@ namespace bank_on_api.GraphQL.Mutations
                 chosen_finance_request.AmountRequired = edit.AmountRequired;
                 chosen_finance_request.Term = edit.Term;
                 chosen_finance_request.FinanceProductId = edit.FinanceProductId;
-                chosen_finance_request.FinanceRequestStatusId = edit.FinanceRequestStatusId;
                 chosen_finance_request.FinanceRequestLog.Add(
                     new FinanceRequestLog
                     {
-                        Title = "Update",
+                        Title = "Update Customer",
                         Description = "Request",
-                        Content = $"{chosen_finance_request.FirstName} {chosen_finance_request.LastName} has updated their request ${chosen_finance_request.ReferenceNo}",
+                        Content = $"{chosen_finance_request.FirstName} {chosen_finance_request.LastName} has updated the details of ticket {chosen_finance_request.ReferenceNo}",
                         DateCreated = clockService.Now,
                     }
                 );
@@ -190,10 +189,107 @@ namespace bank_on_api.GraphQL.Mutations
                 await transaction.RollbackAsync(cancellationToken);
 
                 var timestamp = clockService.InTicks;
-                Log.Fatal(e, "Error in UpdateFinanceRequestAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                Log.Fatal(e, "Error in UpdateFinanceRequestCustomerAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
                 throw new GraphQLException(ErrorBuilder.New()
                     .SetMessage($"There was an error while processing your request {timestamp}")
-                    .SetCode("Mutation-UpdateFinanceRequestAsync-Exception")
+                    .SetCode("Mutation-UpdateFinanceRequestCustomerAsync-Exception")
+                    .SetException(e)
+                    .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
+                    .Build());
+            }
+        }
+
+        [UseDbContext(typeof(BankOn))]
+        public async Task<Response> UpdateFinanceRequestAdminAsync(
+            FinanceRequest edit,
+            [ScopedService] BankOn db,
+            [Service] IConfiguration configuration,
+            [Service] IClockService clockService,
+            CancellationToken cancellationToken
+        )
+        {
+
+
+            using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+            var user_ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+
+
+            try
+            {
+
+
+                var chosen_finance_request = db.FinanceRequest.FirstOrDefault(x => x.FinanceRequestId == edit.FinanceRequestId);
+                var chosen_finance_product = db.FinanceProduct.FirstOrDefault(x => x.FinanceProductId == edit.FinanceProductId);
+
+                if (chosen_finance_request is null)
+                {
+                    return new Response
+                    {
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.BadRequest),
+                        ResponseLabel = "Client Error!",
+                        ResponseMessage = "The finance request does not exist"
+                    };
+
+                }
+
+                if (chosen_finance_product is null)
+                {
+                    return new Response
+                    {
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.BadRequest),
+                        ResponseLabel = "Client Error!",
+                        ResponseMessage = "The finance product of the request does not exist"
+                    };
+
+                }
+
+                chosen_finance_request.DateOfBirth = edit.DateOfBirth;
+                chosen_finance_request.FirstName = edit.FirstName;
+                chosen_finance_request.LastName = edit.LastName;
+                chosen_finance_request.Title = edit.Title;
+                chosen_finance_request.AmountRequired = edit.AmountRequired;
+                chosen_finance_request.Term = edit.Term;
+                chosen_finance_request._UnderAgeFlag = edit._UnderAgeFlag;
+                chosen_finance_request._BlackListDomainFlag = edit._BlackListDomainFlag;
+                chosen_finance_request._BlackListMobileFlag = edit._BlackListMobileFlag;
+                chosen_finance_request._Deleted = edit._Deleted;
+                chosen_finance_request.FinanceRequestStatusId = edit.FinanceRequestStatusId;
+                chosen_finance_request.FinanceProductId = edit.FinanceProductId;
+                chosen_finance_request.MonthlyRepayment = edit.MonthlyRepayment;
+                chosen_finance_request.TotalRepayment = edit.TotalRepayment;
+
+                chosen_finance_request.FinanceRequestLog.Add(
+                    new FinanceRequestLog
+                    {
+                        Title = "Update Admin",
+                        Description = "Request",
+                        Content = $"Ticket {chosen_finance_request.ReferenceNo} has been updated by an Administrator",
+                        DateCreated = clockService.Now,
+                    }
+                );
+
+                db.FinanceRequest.Update(chosen_finance_request);
+
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new RequestResponse
+                {
+                    ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
+                    ResponseLabel = "Successful!",
+                    FRequestResponse = edit,
+                };
+
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+
+                var timestamp = clockService.InTicks;
+                Log.Fatal(e, "Error in UpdateFinanceRequestAdminAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage($"There was an error while processing your request {timestamp}")
+                    .SetCode("Mutation-UpdateFinanceRequestAdminAsync-Exception")
                     .SetException(e)
                     .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
                     .Build());
@@ -223,6 +319,8 @@ namespace bank_on_api.GraphQL.Mutations
                 var chosen_finance_product = db.FinanceProduct.FirstOrDefault(x => x.FinanceProductId == edit.FinanceProductId);
                 var submitted_status = db.FinanceRequestStatus.FirstOrDefault(x => x._case == 1);
                 var denied_status = db.FinanceRequestStatus.FirstOrDefault(x => x._case == 3);
+                var mobileBlackList = db.BlackListGroup.FirstOrDefault(x => x._case == 1);
+                var domainBlackList = db.BlackListGroup.FirstOrDefault(x => x._case == 2);
 
                 var underEighteenFlag = false;
                 var blackListedNumberFlag = false;
@@ -259,13 +357,43 @@ namespace bank_on_api.GraphQL.Mutations
                     };
                 }
 
+                if (mobileBlackList is null || domainBlackList is null)
+                {
+                    return new Response
+                    {
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
+                        ResponseLabel = "Status Error!",
+                        ResponseMessage = "The blacklist cases have not been set"
+                    };
+                }
+
+                List<string> mobileNumbers = new List<string>(mobileBlackList.Expression.Split(','));
+                List<string> domains = new List<string>(domainBlackList.Expression.Split(','));
+
                 LocalDate birthday = (LocalDate)chosen_finance_request.DateOfBirth;
 
 
                 var period = Period.Between(birthday, clockService.LocalNow.Date, PeriodUnits.Years);
+                var domain = chosen_finance_request.Email.Substring(chosen_finance_request.Email.IndexOf('@') + 1);
 
-                if (period.Years < 18) underEighteenFlag = true;
+                if (period.Years < 18)
+                {
+                    underEighteenFlag = true;
+                    chosen_finance_request._UnderAgeFlag = true;
+                }
 
+                if (mobileNumbers.Contains(chosen_finance_request.Mobile))
+                {
+                    blackListedNumberFlag = true;
+                    chosen_finance_request._BlackListMobileFlag = true;
+                }
+
+
+                if (domains.Contains(domain))
+                {
+                    blackListedNumberFlag = true;
+                    chosen_finance_request._BlackListMobileFlag = true;
+                }
 
                 if (!underEighteenFlag && !blackListedDomainFlag && !blackListedNumberFlag)
                 {
@@ -328,10 +456,10 @@ namespace bank_on_api.GraphQL.Mutations
                 await transaction.RollbackAsync(cancellationToken);
 
                 var timestamp = clockService.InTicks;
-                Log.Fatal(e, "Error in UpdateFinanceRequestAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                Log.Fatal(e, "Error in ApplyFinanceRequestAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
                 throw new GraphQLException(ErrorBuilder.New()
                     .SetMessage($"There was an error while processing your request {timestamp}")
-                    .SetCode("Mutation-UpdateFinanceRequestAsync-Exception")
+                    .SetCode("Mutation-ApplyFinanceRequestAsync-Exception")
                     .SetException(e)
                     .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
                     .Build());
@@ -436,10 +564,63 @@ namespace bank_on_api.GraphQL.Mutations
                 await transaction.RollbackAsync(cancellationToken);
 
                 var timestamp = clockService.InTicks;
-                Log.Fatal(e, "Error in UpsertFishingViolatorResidencesAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                Log.Fatal(e, "Error in UpsertFinanceRequestStatusesAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
                 throw new GraphQLException(ErrorBuilder.New()
                     .SetMessage($"There was an error while processing your request {timestamp}")
-                    .SetCode("Mutation-UpsertFishingViolatorResidencesAsync-Exception")
+                    .SetCode("Mutation-UpsertFinanceRequestStatusesAsync-Exception")
+                    .SetException(e)
+                    .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
+                    .Build());
+            }
+        }
+
+        [UseDbContext(typeof(BankOn))]
+        public async Task<Response> UpsertBlackListGroupAsync(
+            List<BlackListGroup> input,
+            [ScopedService] BankOn db,
+            CancellationToken cancellationToken,
+            [Service] IClockService clockService
+        )
+        {
+            var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+            var user_ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            try
+            {
+
+                // foreach (var residences in input)
+                // {
+                //     residences.modified_by_ip = user_ip;
+                //     residences.modified_by = user.ToString();
+                //     residences.date_modified = clockService.Now;
+                // }
+
+
+                await db.BulkInsertOrUpdateAsync(input, new BulkConfig
+                {
+                    SetOutputIdentity = true,
+                    UpdateByProperties = new[] { "BlackListGroupId" }.ToList(),
+                    // PropertiesToExclude = new[] { "request" }.ToList()
+                });
+
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new Response
+                {
+                    ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
+                    ResponseLabel = "Successful!",
+                };
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+
+                var timestamp = clockService.InTicks;
+                Log.Fatal(e, "Error in UpsertBlackListGroupAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage($"There was an error while processing your request {timestamp}")
+                    .SetCode("Mutation-UpsertBlackListGroupAsync-Exception")
                     .SetException(e)
                     .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
                     .Build());

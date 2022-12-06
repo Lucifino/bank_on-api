@@ -17,7 +17,9 @@ namespace bank_on_api.Models.Entities.BankOn
         public int? TermMin { get; set; }
         public decimal? AmountMin { get; set; }
         public bool? _Deleted { get; set; }
+        public int? MonthsFree { get; set; }
+        public decimal? EstablishmentRate { get; set; }
 
-        public virtual ICollection<FinanceRequest> FinanceRequest { get; set; }
+        public virtual ICollection<FinanceRequest>? FinanceRequest { get; set; }
     }
 }

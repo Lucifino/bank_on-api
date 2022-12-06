@@ -11,6 +11,7 @@ namespace bank_on_api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
+// [EnableCors("LoosePolicy")]
 public class BankOnController : ControllerBase
 {
     private readonly BankOnAdapter _bankonAdapter;
@@ -27,8 +28,6 @@ public class BankOnController : ControllerBase
 
 
     [HttpPost]
-    [EnableCors("LoosePolicy")]
-    [ProducesResponseType(typeof(Uri), (int)HttpStatusCode.Redirect)]
     public async Task<IActionResult> SaveFinanceRequestAndRedirect([FromBody] FinanceRequestProxy Request)
     {
         try
