@@ -469,6 +469,8 @@ namespace bank_on_api.GraphQL.Mutations
                 //    chosen_finance_request._BlackListMobileFlag = true;
                 //}
 
+                var Message = "";
+
 
 
                 if (!underEighteenFlag && !blackListedDomainFlag && !blackListedNumberFlag)
@@ -486,6 +488,8 @@ namespace bank_on_api.GraphQL.Mutations
                             DateCreated = clockService.Now,
                         }
                     );
+
+                    Message = $"Customer has submitted their ticket {chosen_finance_request.ReferenceNo}";
 
                 }
                 else
@@ -511,6 +515,8 @@ namespace bank_on_api.GraphQL.Mutations
                         }
                     );
 
+                    Message = $"{chosen_finance_request.ReferenceNo} has alarming information in their profile. Financing has been denied";
+
                 }
 
 
@@ -523,7 +529,7 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
                     ResponseLabel = "Successful!",
-                    ResponseMessage = $"{chosen_finance_request.ReferenceNo} has been updated by the customer"
+                    ResponseMessage = Message
                 };
 
             }
