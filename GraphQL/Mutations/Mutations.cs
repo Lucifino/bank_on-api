@@ -275,6 +275,7 @@ namespace bank_on_api.GraphQL.Mutations
                     };
                 }
 
+                chosen_finance_request.ReferenceNo = edit.ReferenceNo;
                 chosen_finance_request.Mobile = edit.Mobile;
                 chosen_finance_request.Email = edit.Email;
                 chosen_finance_request.DateOfBirth = edit.DateOfBirth;
@@ -298,8 +299,8 @@ namespace bank_on_api.GraphQL.Mutations
                     chosen_finance_request.FinanceRequestLog.Add(
                         new FinanceRequestLog
                         {
-                            Title = "Approved",
-                            Description = "Admin",
+                            Title = "Update Admin",
+                            Description = "Approved",
                             Content = $"Ticket {chosen_finance_request.ReferenceNo} has been approved by an Administrator",
                             DateCreated = clockService.Now,
                         }
@@ -310,8 +311,8 @@ namespace bank_on_api.GraphQL.Mutations
                     chosen_finance_request.FinanceRequestLog.Add(
                         new FinanceRequestLog
                         {
-                            Title = "Denied",
-                            Description = "Admin",
+                            Title = "Update Admin",
+                            Description = "Denied",
                             Content = $"Ticket {chosen_finance_request.ReferenceNo} has been denied by an Administrator",
                             DateCreated = clockService.Now,
                         }
