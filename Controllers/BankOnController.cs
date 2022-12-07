@@ -6,6 +6,7 @@ using bank_on_api.Models.Classes.BankOn;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
 using System.Net;
+using bank_on_api.Entites.Responses;
 
 namespace bank_on_api.Controllers;
 
@@ -28,15 +29,18 @@ public class BankOnController : ControllerBase
 
 
     [HttpPost]
-    public async Task<IActionResult> SaveFinanceRequestAndRedirect([FromBody] FinanceRequestProxy Request)
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(Exception), StatusCodes.Status500InternalServerError)]
+    public async Task<String> SaveFinanceRequestAndRedirect([FromBody] FinanceRequestProxy Request)
     {
         try
         {
-            return new RedirectResult(await _bankonAdapter.SaveFinanceRequestAndRedirect(Request), true);
+            return await _bankonAdapter.SaveFinanceRequestAndRedirect(Request);
         }
         catch (Exception e)
         {
-            return BadRequest(e.Message);
+            return e.Message;
         }
     }
 }

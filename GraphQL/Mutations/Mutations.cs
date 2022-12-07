@@ -98,10 +98,10 @@ namespace bank_on_api.GraphQL.Mutations
                 await transaction.RollbackAsync(cancellationToken);
 
                 var timestamp = clockService.InTicks;
-                Log.Fatal(e, "Error in AddFishingViolationAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
+                Log.Fatal(e, "Error in AddFinanceRequestAsync Mutation by {User} {TimeStamp}", user_ip, timestamp);
                 throw new GraphQLException(ErrorBuilder.New()
                     .SetMessage($"There was an error while processing your request {timestamp}")
-                    .SetCode("Mutation-AddFishingViolationAsync-Exception")
+                    .SetCode("Mutation-AddFinanceRequestAsync-Exception")
                     .SetException(e)
                     .SetExtension("statusCode", (int)HttpStatusCode.InternalServerError)
                     .Build());
@@ -136,8 +136,8 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     return new Response
                     {
-                        ResponseCode = Convert.ToInt32(HttpStatusCode.BadRequest),
-                        ResponseLabel = "Client Error!",
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
+                        ResponseLabel = "Server Error!",
                         ResponseMessage = "The finance request does not exist"
                     };
 
@@ -154,6 +154,8 @@ namespace bank_on_api.GraphQL.Mutations
 
                 }
 
+                chosen_finance_request.Mobile = edit.Mobile;
+                chosen_finance_request.Email = edit.Email;
                 chosen_finance_request.DateOfBirth = edit.DateOfBirth;
                 chosen_finance_request.FirstName = edit.FirstName;
                 chosen_finance_request.LastName = edit.LastName;
@@ -180,7 +182,7 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
                     ResponseLabel = "Successful!",
-                    FRequestResponse = edit,
+                    ResponseMessage = $"{chosen_finance_request.ReferenceNo} quote has been generated",
                 };
 
             }
@@ -220,13 +222,15 @@ namespace bank_on_api.GraphQL.Mutations
 
                 var chosen_finance_request = db.FinanceRequest.FirstOrDefault(x => x.FinanceRequestId == edit.FinanceRequestId);
                 var chosen_finance_product = db.FinanceProduct.FirstOrDefault(x => x.FinanceProductId == edit.FinanceProductId);
+                var approved_status = db.FinanceRequestStatus.FirstOrDefault(x => x._case == 2);
+                var denied_status = db.FinanceRequestStatus.FirstOrDefault(x => x._case == 3);
 
                 if (chosen_finance_request is null)
                 {
                     return new Response
                     {
-                        ResponseCode = Convert.ToInt32(HttpStatusCode.BadRequest),
-                        ResponseLabel = "Client Error!",
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
+                        ResponseLabel = "Server Error!",
                         ResponseMessage = "The finance request does not exist"
                     };
 
@@ -243,6 +247,18 @@ namespace bank_on_api.GraphQL.Mutations
 
                 }
 
+                if (approved_status is null || denied_status is null)
+                {
+                    return new Response
+                    {
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.NotImplemented),
+                        ResponseLabel = "Status Error!",
+                        ResponseMessage = "The required statuses and their cases have not been set"
+                    };
+                }
+
+                chosen_finance_request.Mobile = edit.Mobile;
+                chosen_finance_request.Email = edit.Email;
                 chosen_finance_request.DateOfBirth = edit.DateOfBirth;
                 chosen_finance_request.FirstName = edit.FirstName;
                 chosen_finance_request.LastName = edit.LastName;
@@ -258,15 +274,44 @@ namespace bank_on_api.GraphQL.Mutations
                 chosen_finance_request.MonthlyRepayment = edit.MonthlyRepayment;
                 chosen_finance_request.TotalRepayment = edit.TotalRepayment;
 
-                chosen_finance_request.FinanceRequestLog.Add(
-                    new FinanceRequestLog
-                    {
-                        Title = "Update Admin",
-                        Description = "Request",
-                        Content = $"Ticket {chosen_finance_request.ReferenceNo} has been updated by an Administrator",
-                        DateCreated = clockService.Now,
-                    }
-                );
+
+                if (chosen_finance_request.FinanceRequestStatusId == approved_status.FinanceRequestStatusId)
+                {
+                    chosen_finance_request.FinanceRequestLog.Add(
+                        new FinanceRequestLog
+                        {
+                            Title = "Approved",
+                            Description = "Admin",
+                            Content = $"Ticket {chosen_finance_request.ReferenceNo} has been approved by an Administrator",
+                            DateCreated = clockService.Now,
+                        }
+                    );
+                }
+                else if (chosen_finance_request.FinanceRequestStatusId == denied_status.FinanceRequestStatusId)
+                {
+                    chosen_finance_request.FinanceRequestLog.Add(
+                        new FinanceRequestLog
+                        {
+                            Title = "Denied",
+                            Description = "Admin",
+                            Content = $"Ticket {chosen_finance_request.ReferenceNo} has been denied by an Administrator",
+                            DateCreated = clockService.Now,
+                        }
+                    );
+                }
+                else
+                {
+                    chosen_finance_request.FinanceRequestLog.Add(
+                        new FinanceRequestLog
+                        {
+                            Title = "Update Admin",
+                            Description = "Admin",
+                            Content = $"Ticket {chosen_finance_request.ReferenceNo} has been updated by an Administrator",
+                            DateCreated = clockService.Now,
+                        }
+                    );
+                }
+
 
                 db.FinanceRequest.Update(chosen_finance_request);
 
@@ -277,7 +322,7 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
                     ResponseLabel = "Successful!",
-                    FRequestResponse = edit,
+                    ResponseMessage = $"You have updated ticket {chosen_finance_request.ReferenceNo}",
                 };
 
             }
@@ -331,8 +376,8 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     return new Response
                     {
-                        ResponseCode = Convert.ToInt32(HttpStatusCode.BadRequest),
-                        ResponseLabel = "Client Error!",
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
+                        ResponseLabel = "Server Error!",
                         ResponseMessage = "The finance request does not exist"
                     };
                 }
@@ -351,7 +396,7 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     return new Response
                     {
-                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.NotImplemented),
                         ResponseLabel = "Status Error!",
                         ResponseMessage = "The required statuses and their cases have not been set"
                     };
@@ -361,11 +406,22 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     return new Response
                     {
-                        ResponseCode = Convert.ToInt32(HttpStatusCode.InternalServerError),
-                        ResponseLabel = "Status Error!",
-                        ResponseMessage = "The blacklist cases have not been set"
+                        ResponseCode = Convert.ToInt32(HttpStatusCode.NotImplemented),
+                        ResponseLabel = "BlackList Error!",
+                        ResponseMessage = "The blacklist and its cases have not been set"
                     };
                 }
+
+                chosen_finance_request.Mobile = edit.Mobile;
+                chosen_finance_request.Email = edit.Email;
+                chosen_finance_request.DateOfBirth = edit.DateOfBirth;
+                chosen_finance_request.FirstName = edit.FirstName;
+                chosen_finance_request.LastName = edit.LastName;
+                chosen_finance_request.Title = edit.Title;
+                chosen_finance_request.AmountRequired = edit.AmountRequired;
+                chosen_finance_request.Term = edit.Term;
+                chosen_finance_request._Deleted = edit._Deleted;
+                chosen_finance_request.FinanceProductId = edit.FinanceProductId;
 
                 List<string> mobileNumbers = new List<string>(mobileBlackList.Expression.Split(','));
                 List<string> domains = new List<string>(domainBlackList.Expression.Split(','));
@@ -382,18 +438,38 @@ namespace bank_on_api.GraphQL.Mutations
                     chosen_finance_request._UnderAgeFlag = true;
                 }
 
-                if (mobileNumbers.Contains(chosen_finance_request.Mobile))
+                mobileNumbers.ForEach(x =>
                 {
-                    blackListedNumberFlag = true;
-                    chosen_finance_request._BlackListMobileFlag = true;
-                }
+                    if (x.Contains(chosen_finance_request.Mobile))
+                    {
+                        blackListedNumberFlag = true;
+                        chosen_finance_request._BlackListMobileFlag = true;
+                    }
+                });
+
+                domains.ForEach(x =>
+                {
+                    if (domain.Contains(x))
+                    {
+                        blackListedDomainFlag = true;
+                        chosen_finance_request._BlackListDomainFlag = true;
+                    }
+                });
+
+                //if (mobileNumbers.Contains(chosen_finance_request.Mobile))
+                //{
+                //    blackListedNumberFlag = true;
+                //    chosen_finance_request._BlackListMobileFlag = true;
+                //}
 
 
-                if (domains.Contains(domain))
-                {
-                    blackListedNumberFlag = true;
-                    chosen_finance_request._BlackListMobileFlag = true;
-                }
+                //if (domains.Contains(domain))
+                //{
+                //    blackListedNumberFlag = true;
+                //    chosen_finance_request._BlackListMobileFlag = true;
+                //}
+
+
 
                 if (!underEighteenFlag && !blackListedDomainFlag && !blackListedNumberFlag)
                 {
@@ -406,7 +482,7 @@ namespace bank_on_api.GraphQL.Mutations
                         {
                             Title = "Submission",
                             Description = "Request",
-                            Content = $"{chosen_finance_request.FirstName} {chosen_finance_request.LastName} has submitted their finance request ${chosen_finance_request.ReferenceNo}",
+                            Content = $"{chosen_finance_request.FirstName} {chosen_finance_request.LastName} has submitted their finance request {chosen_finance_request.ReferenceNo}",
                             DateCreated = clockService.Now,
                         }
                     );
@@ -430,7 +506,7 @@ namespace bank_on_api.GraphQL.Mutations
                         {
                             Title = "Denied",
                             Description = "Request",
-                            Content = $"Finance Request ${chosen_finance_request.ReferenceNo} has been denied because of the following reasons: ${deny_reason_1} ${deny_reason_2} ${deny_reason_3}",
+                            Content = $"Finance Request {chosen_finance_request.ReferenceNo} has been denied because of the following reasons: {deny_reason_1} {deny_reason_2} {deny_reason_3}",
                             DateCreated = clockService.Now,
                         }
                     );
@@ -447,7 +523,7 @@ namespace bank_on_api.GraphQL.Mutations
                 {
                     ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
                     ResponseLabel = "Successful!",
-                    FRequestResponse = edit,
+                    ResponseMessage = $"{chosen_finance_request.ReferenceNo} has been updated by the customer"
                 };
 
             }

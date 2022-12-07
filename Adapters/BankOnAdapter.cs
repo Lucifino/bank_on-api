@@ -71,7 +71,7 @@ public class BankOnAdapter
                     }
                 );
 
-                
+
 
                 await db.SaveChangesAsync();
 
@@ -82,7 +82,7 @@ public class BankOnAdapter
             }
 
 
-            return $"http:localhost:4200/admin/calculate/{idParam}";
+            return $"https://kind-sand-099505e10.2.azurestaticapps.net/admin/calculate/{idParam}";
         }
         catch (Exception e)
         {
