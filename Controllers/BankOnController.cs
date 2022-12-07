@@ -12,7 +12,7 @@ namespace bank_on_api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
-// [EnableCors("LoosePolicy")]
+[EnableCors("LoosePolicy")]
 public class BankOnController : ControllerBase
 {
     private readonly BankOnAdapter _bankonAdapter;

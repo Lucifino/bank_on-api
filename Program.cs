@@ -45,64 +45,15 @@ builder.Services.AddPooledDbContextFactory<BankOn>(options =>
 });
 
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy(name: "LoosePolicy",
-//                       policy =>
-//                       {
-//                           policy.WithOrigins("http://localhost:5177")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("http://localhost:7177")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("http://localhost:4200")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("https://localhost:5177")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("https://localhost:7177")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("https://localhost:4200")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("https://bankon-api.azurewebsites.net")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("http://bankon-api.azurewebsites.net")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("https://kind-sand-099505e10.2.azurestaticapps.net")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                           policy.WithOrigins("http://kind-sand-099505e10.2.azurestaticapps.net")
-//                             .AllowAnyMethod()
-//                             .AllowAnyHeader()
-//                             .AllowAnyOrigin();
-//                       });
-// });
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("LoosePolicy", policy =>
-//     {
-//         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-//     });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("LoosePolicy", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
 
-// });
-
-
+});
 
 
 builder.Services.AddControllers(options =>
@@ -185,8 +136,8 @@ app.UseDeveloperExceptionPage();
 app.UseStaticFiles();
 app.UseResponseCompression();
 app.UseRouting();
-// app.UseCors("LoosePolicy");
-app.UseCorsMiddleware();
+app.UseCors("LoosePolicy");
+// app.UseCorsMiddleware();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
