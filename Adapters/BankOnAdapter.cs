@@ -81,8 +81,8 @@ public class BankOnAdapter
                 // await transaction.CommitAsync();
             }
 
-            return $"http://localhost:4200/admin/calculate/{idParam}";
-            //return $"https://kind-sand-099505e10.2.azurestaticapps.net/admin/calculate/{idParam}";
+            //return $"http://localhost:4200/admin/calculate/{idParam}";
+            return $"https://kind-sand-099505e10.2.azurestaticapps.net/admin/calculate/{idParam}";
         }
         catch (Exception e)
         {
