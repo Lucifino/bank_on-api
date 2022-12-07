@@ -53,8 +53,18 @@ namespace bank_on_api.GraphQL.Mutations
 
                 var new_reference_no = $"{input.FirstName}-{input.LastName}-{input.DateOfBirth.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
 
+                var savedRequest = db.FinanceRequest.FirstOrDefault(x => x.ReferenceNo == new_reference_no);
 
-                var financeRequest = await db.FinanceRequest.AddAsync(
+                var idParam = "";
+
+
+                if (savedRequest is not null)
+                {
+                    idParam = savedRequest.FinanceRequestId.ToString();
+                }
+                else
+                {
+                    var financeRequest = await db.FinanceRequest.AddAsync(
                     new FinanceRequest()
                     {
                         AmountRequired = input.AmountRequired,
@@ -72,24 +82,32 @@ namespace bank_on_api.GraphQL.Mutations
                     }
                 );
 
-                financeRequest.Entity.FinanceRequestLog.Add(
-                    new FinanceRequestLog
-                    {
-                        Title = "Creation",
-                        Description = "Request",
-                        Content = $"{financeRequest.Entity.FirstName} {financeRequest.Entity.LastName} has applied for a financing worth ${financeRequest.Entity.AmountRequired}. Reference No ${financeRequest.Entity.ReferenceNo}",
-                        DateCreated = clockService.Now,
-                    }
-                );
+                    financeRequest.Entity.FinanceRequestLog.Add(
+                        new FinanceRequestLog
+                        {
+                            Title = "Creation",
+                            Description = "Request",
+                            Content = $"{financeRequest.Entity.FirstName} {financeRequest.Entity.LastName} has applied for a financing worth ${financeRequest.Entity.AmountRequired}. Reference No ${financeRequest.Entity.ReferenceNo}",
+                            DateCreated = clockService.Now,
+                        }
+                    );
 
-                await db.SaveChangesAsync();
-                await transaction.CommitAsync();
+                    await db.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    var addedRequest = db.FinanceRequest.FirstOrDefault(x => x.ReferenceNo == new_reference_no);
+
+                    idParam = addedRequest?.FinanceRequestId.ToString();
+                }
+
+
+
 
                 return new RequestResponse
                 {
                     ResponseCode = Convert.ToInt32(HttpStatusCode.Accepted),
                     ResponseLabel = "Successful!",
-                    ResponseMessage = $"{financeRequest.Entity.FinanceRequestId}"
+                    ResponseMessage = $"{idParam}"
                 };
 
             }
