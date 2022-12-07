@@ -494,6 +494,9 @@ namespace bank_on_api.GraphQL.Mutations
 
                 if (!underEighteenFlag && !blackListedDomainFlag && !blackListedNumberFlag)
                 {
+                    chosen_finance_request._UnderAgeFlag = false;
+                    chosen_finance_request._BlackListDomainFlag = false;
+                    chosen_finance_request._BlackListMobileFlag = false;
                     chosen_finance_request.TotalRepayment = edit.TotalRepayment;
                     chosen_finance_request.MonthlyRepayment = edit.MonthlyRepayment;
                     chosen_finance_request.FinanceRequestStatusId = submitted_status.FinanceRequestStatusId;
